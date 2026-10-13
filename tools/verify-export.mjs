@@ -15,6 +15,7 @@ assert.ok(read('src-tauri/Cargo.lock').includes('name = "crocodile-gena-studio"'
 
 const required = [
   'src-tauri/build.rs', 'src-tauri/src/lib.rs', 'src-tauri/src/main.rs',
+  'src-tauri/src/linux_startup.rs', 'tools/smoke-linux.py',
   'src-tauri/capabilities/default.json', 'ui/index.html',
   '.github/workflows/linux.yml', 'LINUX-START.txt',
   ...config.bundle.icon.map((path) => `src-tauri/${path}`),

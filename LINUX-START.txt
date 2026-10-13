@@ -7,6 +7,11 @@ AppImage — переносимый файл, установка не нужна
 chmod +x CrocodileGenaStudio_5.1.0_linux_x86_64.AppImage
 ./CrocodileGenaStudio_5.1.0_linux_x86_64.AppImage
 
+Режим совместимости WebKit включается автоматически при обычном запуске.
+Если осталась старая сборка и появляется чёрное окно / EGL_BAD_PARAMETER,
+попробуйте запустить её так:
+WEBKIT_DISABLE_DMABUF_RENDERER=1 WEBKIT_DISABLE_COMPOSITING_MODE=1 ./CrocodileGenaStudio_5.1.0_linux_x86_64.AppImage
+
 Если система сообщает об отсутствии FUSE, установите пакет FUSE 2 своего
 дистрибутива или запустите без FUSE:
 ./CrocodileGenaStudio_5.1.0_linux_x86_64.AppImage --appimage-extract-and-run
