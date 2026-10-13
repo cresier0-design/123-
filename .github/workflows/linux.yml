@@ -13,7 +13,7 @@ jobs:
       contents: write
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/actions/checkout@v4
 
       - name: Install Tauri Linux dependencies
         run: |
@@ -34,7 +34,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
 
       - uses: dtolnay/rust-toolchain@stable
 
@@ -44,6 +43,19 @@ jobs:
 
       - name: Install frontend dependencies
         run: npm ci
+
+      - name: Create dummy resource files for build
+        run: |
+          mkdir -p ../backend/core_engine
+          mkdir -p ../DLCUnlocker
+          touch ../backend/core_engine/winmm.dll
+          touch ../backend/core_engine/winmm_unity.dll
+          touch ../backend/core_engine/EpicFix64.dll
+          touch ../backend/core_engine/EpicFix.ini
+          touch ../backend/core_engine/EOSSDK-Win64-Shipping.dll
+          touch ../backend/core_engine/SteamFix64.dll
+          touch ../DLCUnlocker/steam_api.dll
+          touch ../DLCUnlocker/steam_api64.dll
 
       - name: Check Linux backend
         run: cargo check --manifest-path src-tauri/Cargo.toml
