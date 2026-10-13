@@ -72,8 +72,10 @@ jobs:
           mapfile -t appimages < <(find src-tauri/target/release/bundle/appimage -maxdepth 1 -type f -name '*.AppImage')
           [ "${#appimages[@]}" -eq 1 ]
           mkdir -p linux-diagnostics
-          xvfb-run -a -s '-screen 0 1600x1000x24' \
-            dbus-run-session -- python3 tools/smoke-linux.py "${appimages[0]}" linux-diagnostics
+          for mode in balanced software; do
+            xvfb-run -a -s '-screen 0 1600x1000x24' \
+              dbus-run-session -- python3 tools/smoke-linux.py "${appimages[0]}" "linux-diagnostics/$mode" "$mode"
+          done
 
       - name: Upload Linux rendering diagnostics
         if: always()
