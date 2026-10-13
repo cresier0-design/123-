@@ -1,0 +1,58 @@
+/* Keep the layout and theme; avoid large repaint surfaces in WebKitGTK. */
+body[data-platform="linux"] .ambient {
+  display: none;
+}
+
+body[data-platform="linux"] .home-glow {
+  filter: none;
+  background: radial-gradient(circle, rgba(var(--accent-rgb), .7), transparent 70%);
+}
+
+body[data-platform="linux"] :is(.titlebar, .page-topbar, .float-badge, .modal-backdrop) {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+
+body[data-platform="linux"] .titlebar {
+  background: #080a0f;
+}
+
+body[data-platform="linux"] .page-topbar {
+  background: linear-gradient(180deg, #080a0f 75%, rgba(8, 10, 15, .96));
+}
+
+body[data-platform="linux"] .float-badge {
+  background: #0c0f16;
+}
+
+body[data-platform="linux"] .modal-backdrop {
+  background: rgba(2, 3, 5, .88);
+}
+
+body[data-platform="linux"] :is(.ring-one, .ring-two, .pulse-dot, .activity-led, .view) {
+  animation: none;
+}
+
+body[data-platform="linux"] :is(.hero-artwork img, .nav-item.active svg) {
+  filter: none;
+}
+
+body[data-platform="linux"] .premium-panel {
+  box-shadow: inset 0 1px rgba(255, 255, 255, .025), 0 5px 18px rgba(0, 0, 0, .1);
+}
+
+body[data-platform="linux"] :is(button, input, select, .file-card, .drop-zone, .path-entry) {
+  transition-property: transform, opacity, color, border-color, background-color;
+  transition-duration: .12s;
+}
+
+/* Small transform-only loading indicators remain animated while visible. */
+body[data-platform="linux"][data-renderer="software"] :is(button, .file-card, .drop-zone, .path-entry) {
+  transition: none;
+}
+
+body[data-platform="linux"].app-idle *,
+body[data-platform="linux"].app-idle *::before,
+body[data-platform="linux"].app-idle *::after {
+  animation-play-state: paused !important;
+}

@@ -14,6 +14,9 @@ from PIL import ImageGrab
 def main():
     appimage = Path(sys.argv[1]).resolve()
     diagnostics = Path(sys.argv[2]).resolve()
+    mode = sys.argv[3] if len(sys.argv) > 3 else "balanced"
+    if mode not in ("balanced", "gpu", "software"):
+        raise ValueError("Unknown renderer mode")
     diagnostics.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix="cgs-render-check-") as temporary:
         unpack = subprocess.run(
@@ -31,6 +34,7 @@ def main():
         # externally and accidentally hiding a broken application startup.
         environment.pop("WEBKIT_DISABLE_DMABUF_RENDERER", None)
         environment.pop("WEBKIT_DISABLE_COMPOSITING_MODE", None)
+        environment["CGS_RENDERER"] = mode
         screenshot = diagnostics / "window.png"
         with (diagnostics / "startup.log").open("w", encoding="utf-8") as log:
             process = subprocess.Popen(
@@ -59,7 +63,7 @@ def main():
                         # just an X11 window that may contain a black WebView.
                         visible = ocr.stdout.lower()
                         if "crocodile" in visible and "gena" in visible:
-                            print("AppImage startup and visible frontend rendering passed.")
+                            print(f"AppImage startup and visible frontend rendering passed ({mode}).")
                             return
                     time.sleep(2)
                 raise RuntimeError("No rendered frontend within 60 seconds; see Linux-rendering-diagnostics")

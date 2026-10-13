@@ -132,6 +132,7 @@
 
   async function loadCatalog(force = false, silent = false) {
     if (state.refreshing || (state.loaded && !force)) return;
+    let shouldRender = !silent || Boolean(state.error);
     state.refreshing = true;
     state.loading = !silent;
     state.error = "";
@@ -142,8 +143,11 @@
     try {
       if (!invoke) throw new Error("Системный модуль недоступен");
       const catalog = await invoke("files_catalog");
-      state.files = Array.isArray(catalog?.files) ? catalog.files : [];
-      state.cached = Boolean(catalog?.cached);
+      const nextFiles = Array.isArray(catalog?.files) ? catalog.files : [];
+      const nextCached = Boolean(catalog?.cached);
+      shouldRender = shouldRender || JSON.stringify(state.files) !== JSON.stringify(nextFiles) || state.cached !== nextCached;
+      state.files = nextFiles;
+      state.cached = nextCached;
       state.error = "";
       state.loaded = true;
       if (!silent) state.page = 1;
@@ -157,7 +161,7 @@
       state.loading = false;
       state.refreshing = false;
       $("#files-refresh").disabled = false;
-      render();
+      if (shouldRender) render();
     }
   }
 

@@ -7,7 +7,16 @@ AppImage — переносимый файл, установка не нужна
 chmod +x CrocodileGenaStudio_5.1.0_linux_x86_64.AppImage
 ./CrocodileGenaStudio_5.1.0_linux_x86_64.AppImage
 
-Режим совместимости WebKit включается автоматически при обычном запуске.
+Аппаратная композиция включена при обычном запуске. Тяжёлые фоновые эффекты
+облегчены для Linux. Если опять появляется EGL_BAD_PARAMETER или чёрное окно:
+CGS_RENDERER=software ./CrocodileGenaStudio_5.1.0_linux_x86_64.AppImage
+
+Для полной аппаратной отрисовки на совместимом драйвере:
+CGS_RENDERER=gpu ./CrocodileGenaStudio_5.1.0_linux_x86_64.AppImage
+
+Если раньше вручную экспортировали переменные WebKit, сначала сбросьте их:
+unset WEBKIT_DISABLE_COMPOSITING_MODE WEBKIT_DISABLE_DMABUF_RENDERER
+
 Если осталась старая сборка и появляется чёрное окно / EGL_BAD_PARAMETER,
 попробуйте запустить её так:
 WEBKIT_DISABLE_DMABUF_RENDERER=1 WEBKIT_DISABLE_COMPOSITING_MODE=1 ./CrocodileGenaStudio_5.1.0_linux_x86_64.AppImage

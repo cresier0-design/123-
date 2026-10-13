@@ -133,6 +133,7 @@
       const info = await invoke("platform_info");
       if (!info?.os) return;
       document.body.dataset.platform = info.os;
+      document.body.dataset.renderer = info.softwareRendering ? "software" : "accelerated";
       (info.windowsOnlyModules || []).forEach((name) => platformHiddenModules.add(name));
       if (!info.windows) {
         $$(".windows-only").forEach((element) => element.classList.add("hidden"));
@@ -2220,6 +2221,15 @@
   async function boot() {
     bindEvents();
     await loadPlatformInfo();
+    if (document.body.dataset.platform === "linux") {
+      const updateIdleEffects = () => {
+        document.body.classList.toggle("app-idle", document.hidden || !document.hasFocus());
+      };
+      document.addEventListener("visibilitychange", updateIdleEffects);
+      window.addEventListener("blur", updateIdleEffects);
+      window.addEventListener("focus", updateIdleEffects);
+      updateIdleEffects();
+    }
     applyModuleVisibility();
     applyAccent(localStorage.getItem("accent") || "mint");
     const requestedView = new URLSearchParams(window.location.search).get("view");
@@ -2244,9 +2254,14 @@
     setInterval(() => {
       if (state.lua.hubcapKey.trim()) refreshHubcapUsage();
     }, 30_000);
+    let manifestRestorePending = false;
     setInterval(() => {
-      if ($("#view-lua")?.classList.contains("active")) refreshMillenniumStatus();
-      call("luatools_restore_manifests", { steamPath: state.lua.steamPath || null }).catch(() => {});
+      if (document.body.dataset.platform !== "linux" && $("#view-lua")?.classList.contains("active")) refreshMillenniumStatus();
+      if (manifestRestorePending) return;
+      manifestRestorePending = true;
+      call("luatools_restore_manifests", { steamPath: state.lua.steamPath || null })
+        .catch(() => {})
+        .finally(() => { manifestRestorePending = false; });
     }, 3_000);
     log("Crocodile Gena Studio 5.1.0 инициализирован", "system");
     log(invoke ? "Все компоненты готовы к работе" : "Запустите установленное приложение", invoke ? "success" : "error");

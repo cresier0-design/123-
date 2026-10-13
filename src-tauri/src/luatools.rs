@@ -678,7 +678,26 @@ pub fn luatools_status(app: AppHandle, steam_path: Option<String>) -> LuaStatus 
 }
 
 #[tauri::command]
-pub fn luatools_restore_manifests(app: AppHandle, steam_path: Option<String>) -> OperationResult {
+pub async fn luatools_restore_manifests(
+    app: AppHandle,
+    steam_path: Option<String>,
+) -> OperationResult {
+    match tauri::async_runtime::spawn_blocking(move || {
+        luatools_restore_manifests_blocking(app, steam_path)
+    })
+    .await
+    {
+        Ok(result) => result,
+        Err(error) => {
+            OperationResult::error(format!("Проверка манифестов прервана: {error}"), vec![])
+        }
+    }
+}
+
+fn luatools_restore_manifests_blocking(
+    app: AppHandle,
+    steam_path: Option<String>,
+) -> OperationResult {
     let Some(steam) = resolve_steam_path(steam_path) else {
         return OperationResult::error("Папка Steam не найдена", vec![]);
     };

@@ -152,6 +152,7 @@ struct PlatformInfo {
     os: &'static str,
     windows: bool,
     windows_only_modules: Vec<&'static str>,
+    software_rendering: bool,
 }
 
 #[tauri::command]
@@ -159,6 +160,8 @@ fn platform_info() -> PlatformInfo {
     PlatformInfo {
         os: std::env::consts::OS,
         windows: cfg!(target_os = "windows"),
+        software_rendering: cfg!(target_os = "linux")
+            && std::env::var("WEBKIT_DISABLE_COMPOSITING_MODE").as_deref() == Ok("1"),
         windows_only_modules: if cfg!(target_os = "windows") {
             Vec::new()
         } else {
