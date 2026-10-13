@@ -1,0 +1,30 @@
+Crocodile Gena Studio 5.1.0 — Linux x86_64
+
+AppImage — переносимый файл, установка не нужна.
+После распаковки ZIP разрешите запуск файла в его свойствах.
+Либо выполните в терминале в папке с файлом:
+
+chmod +x CrocodileGenaStudio_5.1.0_linux_x86_64.AppImage
+./CrocodileGenaStudio_5.1.0_linux_x86_64.AppImage
+
+Если система сообщает об отсутствии FUSE, установите пакет FUSE 2 своего
+дистрибутива или запустите без FUSE:
+./CrocodileGenaStudio_5.1.0_linux_x86_64.AppImage --appimage-extract-and-run
+
+Ubuntu / Debian / Linux Mint — пакет DEB:
+sudo apt install ./CrocodileGenaStudio_5.1.0_linux_x86_64.deb
+
+Fedora — пакет RPM:
+sudo dnf install ./CrocodileGenaStudio_5.1.0_linux_x86_64.rpm
+
+openSUSE — пакет RPM:
+sudo zypper install ./CrocodileGenaStudio_5.1.0_linux_x86_64.rpm
+
+После установки DEB или RPM приложение доступно в меню приложений.
+Rust, Node.js, WSL и Windows пользователю не нужны.
+Не запускайте программу целиком через sudo.
+
+Сборка предназначена для современных настольных Linux x86_64.
+Игровые DLL рассчитаны на Windows-игры в Proton, а не на нативные Linux-игры.
+Модули управления защитой Windows на Linux недоступны.
+

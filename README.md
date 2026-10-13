@@ -1,1 +1,93 @@
-# 123-
+# Crocodile Gena Studio 5.1.0 — Linux build
+
+Это отдельная копия проекта для сборки Linux x86_64 на GitHub Actions.
+Локально устанавливать WSL, Ubuntu, Rust или Node.js не требуется.
+
+## 1. Загрузите файлы
+
+Создайте репозиторий на своём втором аккаунте GitHub. Можно использовать Private.
+В корне репозитория должны лежать **содержимое папки repo**, а не сама папка repo:
+
+```text
+.github/workflows/linux.yml
+backend/core_engine/
+CreamAPI/
+SmokeAPI/
+src-tauri/
+ui/
+tools/
+.gitignore
+package.json
+package-lock.json
+README.md
+LINUX-START.txt
+```
+
+Используйте GitHub Desktop: клонируйте пустой репозиторий, скопируйте в него
+содержимое repo вместе с .github, выполните Commit, затем Push.
+GitHub Desktop не требует вручную выбирать десятки отдельных файлов.
+
+Через сайт: Add file → Upload files → перетащите содержимое repo.
+Проверьте, что .github/workflows/linux.yml тоже появился. Если браузер не загрузил
+папку .github, создайте этот файл через Add file → Create new file и вставьте его
+содержимое. Все файлы должны попасть в основную ветку, обычно main.
+
+ZIP исходников нельзя просто загрузить одним файлом в репозиторий — сначала
+распакуйте его и загрузите содержимое.
+
+## 2. Добавьте ключ Ryuu
+
+Ключ не хранится в этой копии исходников. Он берётся из секрета при компиляции.
+
+1. Settings → Secrets and variables → Actions → New repository secret.
+2. Name: **RYUU_AUTH_KEY**.
+3. Secret: значение из файла **PRIVATE-RYUU-SETUP.txt**, который находится рядом
+   с папкой repo на вашем компьютере.
+4. Нажмите Add secret.
+
+**PRIVATE-RYUU-SETUP.txt не загружайте в GitHub и не отправляйте пользователям.**
+Workflow не печатает ключ в лог. В готовом бинарнике ключ используется так же,
+как в исходной программе; GitHub Secret защищает исходник, а не скрывает ключ
+от извлечения из скомпилированного приложения.
+
+## 3. Запустите сборку
+
+Actions → **Build Linux packages** → **Run workflow** → main → Run workflow.
+При первом запуске разрешите Actions для репозитория, если GitHub предложит.
+Если аккаунт требует дополнительной проверки для Actions, выполните её на GitHub.
+
+Workflow сам устанавливает зависимости и собирает три пакета. Публикации Release
+не происходит, доступ на запись и персональный GitHub-токен не нужны.
+
+## 4. Скачайте результат
+
+После зелёного статуса откройте завершённый запуск. Внизу, в **Artifacts**, скачайте
+**CrocodileGenaStudio-Linux-x86_64** и распакуйте ZIP:
+
+- CrocodileGenaStudio_5.1.0_linux_x86_64.AppImage
+- CrocodileGenaStudio_5.1.0_linux_x86_64.deb
+- CrocodileGenaStudio_5.1.0_linux_x86_64.rpm
+- README.txt — инструкция пользователю
+- SHA256SUMS.txt — контрольные суммы
+
+Для распространения отправляйте пользователям готовый AppImage, DEB или RPM,
+а не исходники из этого репозитория. Артефакты сохраняются 30 дней.
+
+## Состав копии
+
+Сохранены интерфейс и ресурсы модулей для Windows-игр в Proton. DLL этих модулей
+входят в пакет, но не превращаются в нативные Linux-библиотеки.
+VBS/DSE, Windows-гипервизор, очистка Windows-античитов и комплект Millennium
+скрыты на Linux. Их отдельные установщики и ресурсы в экспорт не включены.
+Поэтому эта копия предназначена только для Linux-сборки.
+
+Поддержку каждого модуля в настоящем Linux/Proton следует проверить после
+первой сборки. Локальная проверка исходников не заменяет такую проверку.
+Автообновление сохраняет адрес исходного официального репозитория релизов;
+второй аккаунт используется только для сборки.
+
+Официальные инструкции:
+- https://v2.tauri.app/distribute/appimage/
+- https://docs.github.com/en/actions/how-tos/manage-workflow-runs/manually-run-a-workflow
+- https://docs.github.com/en/actions/how-tos/manage-workflow-runs/download-workflow-artifacts
+
