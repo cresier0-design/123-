@@ -1,0 +1,105 @@
+name: Build Linux packages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux-x64:
+    name: Linux x86_64 — AppImage, DEB, RPM
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Check export and private build key
+        env:
+          RYUU_AUTH_KEY: ${{ secrets.RYUU_AUTH_KEY }}
+        run: |
+          node tools/verify-export.mjs
+          if [ -z "$RYUU_AUTH_KEY" ]; then
+            echo '::error::Add the RYUU_AUTH_KEY repository secret: Settings > Secrets and variables > Actions.'
+            exit 1
+          fi
+
+      - name: Install Linux system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            build-essential curl wget file \
+            libwebkit2gtk-4.1-dev libgtk-3-dev \
+            libayatana-appindicator3-dev librsvg2-dev \
+            libssl-dev libdbus-1-dev libxdo-dev \
+            libfuse2 patchelf pkg-config rpm xdg-utils
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Check Linux source
+        env:
+          RYUU_AUTH_KEY: ${{ secrets.RYUU_AUTH_KEY }}
+        run: cargo check --locked --manifest-path src-tauri/Cargo.toml
+
+      - name: Build Linux packages
+        env:
+          RYUU_AUTH_KEY: ${{ secrets.RYUU_AUTH_KEY }}
+          NO_STRIP: "true"
+        run: npm run tauri build -- --ci --bundles appimage,deb,rpm -- --locked
+
+      - name: Collect and inspect packages
+        shell: bash
+        run: |
+          set -euo pipefail
+          version=$(node -p "require('./package.json').version")
+          mkdir -p dist-linux
+          for kind in appimage deb rpm; do
+            case "$kind" in
+              appimage) extension=AppImage ;;
+              *) extension=$kind ;;
+            esac
+            mapfile -t packages < <(find "src-tauri/target/release/bundle/$kind" -maxdepth 1 -type f -name "*.$extension")
+            if [ "${#packages[@]}" -ne 1 ]; then
+              echo "::error::Expected one $extension package, found ${#packages[@]}."
+              exit 1
+            fi
+            cp "${packages[0]}" "dist-linux/CrocodileGenaStudio_${version}_linux_x86_64.$extension"
+          done
+          cp LINUX-START.txt dist-linux/README.txt
+          file dist-linux/*.AppImage
+          dpkg-deb --info dist-linux/*.deb
+          rpm -qpi dist-linux/*.rpm
+          (cd dist-linux && sha256sum *.AppImage *.deb *.rpm > SHA256SUMS.txt)
+          {
+            echo '## Linux packages are ready'
+            echo ''
+            echo 'Download **CrocodileGenaStudio-Linux-x86_64** in the Artifacts section below.'
+            echo 'Extract the downloaded ZIP. Share AppImage, DEB or RPM with your users.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload Linux packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: CrocodileGenaStudio-Linux-x86_64
+          path: dist-linux/
+          if-no-files-found: error
+          retention-days: 30
+          compression-level: 0
+
